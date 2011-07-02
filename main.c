@@ -4,8 +4,10 @@
 void main(void)
 {
        
-       //scrittura di un carattere di prova
-       putc('A');
+       putstring("ABC\n");
        
+       char *s = getstring(3);
+       
+       putstring(s);
        
 }

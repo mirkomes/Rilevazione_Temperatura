@@ -5,6 +5,7 @@ extern void putstring(char *s);
 extern void serial_setup(void);
 extern void write_bit_register(volatile uint32_t *reg, int offset, int value);
 extern void write_value_register(volatile uint32_t *reg, int start_bit, int end_bit, uint32_t value);
+extern void gpio_setup(void);
 
 #define REG(x) ((volatile uint32_t *)(x))
 
@@ -27,5 +28,5 @@ extern void write_value_register(volatile uint32_t *reg, int start_bit, int end_
 
 #define UART_CLOCK_DIV	REG(0x40048098)
 
-#define GPIO1_6		REG(0x400440A4)
-#define GPIO1_7		REG(0x400440A8)
+//registro di controllo reset periferiche
+#define PRESETCTRL		REG(0x40048004)

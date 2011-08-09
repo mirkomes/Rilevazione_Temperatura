@@ -23,7 +23,7 @@ main.bin: main checksum
 checksum:
 	$(MAKE) -C checksum
 
-main: main.o boot.o vectors.o io.o
+main: main.o boot.o vectors.o io.o i2c.o gpio.o
 	$(LD) $(LDFLAGS) linker.lds $^ -o $@
 
 .PHONY: all

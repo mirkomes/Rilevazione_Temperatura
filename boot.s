@@ -34,6 +34,8 @@ _entry:
 	b	0b
 
 1:	
+	bl gpio_setup
+          bl i2c_setup
           bl serial_setup
 
 	mov	r0, #0

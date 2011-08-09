@@ -1,24 +1,15 @@
 #include "io.h"
-
+#include "gpio.h"
 
 void serial_setup(void)
 {
-        
-        //accendo il clock per poter configurare correttamente i pin di trasmissione e di ricezione
-        write_bit_register(AHBCLKCTRL, 16, 1);
-
-        //configuro i pin della GPIO1 in modalità di TX e RX
-        write_bit_register(GPIO1_6, 0, 1);
-        write_bit_register(GPIO1_7, 0, 1);
-        
+                
         //setto il clock divider a 1 (gira a 12 Mhz)
         uint32_t clock_divider = 0x1;
         write_value_register(UART_CLOCK_DIV, 0, 7, clock_divider);
         
         //accensione del blocco UART (devo impostare il bit 12 di AHBCLKCTRL)
         write_bit_register(AHBCLKCTRL, 12, 1);
-        //accensione delle porte GPIO (devo impostare il bit 6 di AHBCLKCTRL)
-        write_bit_register(AHBCLKCTRL, 6, 1);
         
         //configuro il LINE CONTROL REGISTER (no parità, no break control, 8 bit di carattere, 1 bit di stop).
         //impostazione del DIVISOR LATCH REGISTER (con DLAB = 1)
@@ -92,12 +83,8 @@ void putchar(int c)
 //scrittura di una stringa sulla seriale
 void putstring(char *s)
 {
-        int lenght = sizeof(s);
-        int i;
-        for (i = 0; i < lenght; i++)
-        {
-	      putchar(s[i]);
-        }
+        while(*s)
+	      putchar(*(s++));
 }
 
 //scrive il valore di un bit in un registro specificato

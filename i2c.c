@@ -7,18 +7,23 @@ void i2c_setup(void)
         write_bit_register(AHBCLKCTRL, 5, 1);
         
         //reset della periferica
-        write_bit_register(PRESETCTRL, 1, 1);
+        write_bit_register(PRESETCTRL, 1, 1); 
         
-        //impostazione della frequenza standard 100KHz (duty cycle a 50%)
-        write_value_register(I2SCLL, 0, 15, 0xf);
-        write_value_register(I2SCLH, 0, 15, 0xf); 
+        //impostazione della frequenza
+        //STANDARD MODE - IMPOSTAZIONE A 100 KHz
+        write_value_register(I2SCLL, 0, 15, 0x3c);
+        write_value_register(I2SCLH, 0, 15, 0x3c);
+                
+        //FAST MODE PLUS - IMPOSTAZIONE AD 1 MHz
+        //write_value_register(I2SCLL, 0, 15, 0x6);
+        //write_value_register(I2SCLH, 0, 15, 0x6);
         
         //entro nella modalità di MASTER TRASMITTER MODE
         //azzero il bit di ASSERT ACK (è l'unico bit in cui non è specificato un valore di default)
         write_bit_register(I2C0CONCLR, 2, 1);
         
         //abilito l'interfaccia I2C
-        write_bit_register(I2C0CONSET, 6, 1);
+        write_bit_register(I2C0CONSET, 6, 1);       
         
 }
 
@@ -45,7 +50,8 @@ int i2c_send_start(void)
 int i2c_address_slave(uint32_t address)
 {      
        
-        volatile int i = 0;
+        //--- FAST MODE PLUS --- Comunicazione al sensore di temperatura
+        /*volatile int i = 0;
         
         //mando una parola per mettere lo slave in High Speed mode.
         *I2DAT = 0x0A;
@@ -54,27 +60,26 @@ int i2c_address_slave(uint32_t address)
         *I2C0CONCLR |= 0x08;
         
         //attendo un ritardo e reimposto l'SI bit ad 1
-        for (i = 0; i < 500; i++)
+        for (i = 0; i < 3000; i++)
         {}
         
-        *I2C0CONSET |= 0x08;
+        *I2C0CONSET |= 0x08;*/
+        //--- FAST MODE PLUS ---
                 
         //scrivo l'indirizzo da trasmettere nell'apposito registro di trasmissione
         *I2DAT = address;
         
-        //*I2C0CONSET |= 0x04;
-        
         //resetto l'SI bit a 0
         *I2C0CONCLR |= 0x08;
         
-        *(volatile uint32_t *) 0x5003003c = 0x0d;
+        *(volatile uint32_t *) 0x5003003c = 0x0e;
         
         //si attende che SI torni ad 1 e quando succede si verifica lo stato
         while ( !(((*I2C0CONSET) & (0x08)) != 0) )
         {
         }
         
-        *(volatile uint32_t *) 0x5003003c |= 0x0e;
+        *(volatile uint32_t *) 0x5003003c |= 0x0d;
         
         //si legge lo stato, è tutto OK se è pari a 0x18
         uint32_t valore = *I2STAT;

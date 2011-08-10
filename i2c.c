@@ -13,7 +13,11 @@ void i2c_setup(void)
         //STANDARD MODE - IMPOSTAZIONE A 100 KHz
         write_value_register(I2SCLL, 0, 15, 0x3c);
         write_value_register(I2SCLH, 0, 15, 0x3c);
-                
+        
+        //FAST MODE - IMPOSTAZIONE A 400KHz
+        //write_value_register(I2SCLL, 0, 15, 0xf);
+        //write_value_register(I2SCLH, 0, 15, 0xf);
+
         //FAST MODE PLUS - IMPOSTAZIONE AD 1 MHz
         //write_value_register(I2SCLL, 0, 15, 0x6);
         //write_value_register(I2SCLH, 0, 15, 0x6);
@@ -31,6 +35,9 @@ void i2c_setup(void)
 //altrimenti si ritorna il valore 0.
 int i2c_send_start(void)
 {
+        
+        printdebug(*I2SCLL);
+        printdebug(*I2SCLH);
         //imposto il bit STA = 1
         write_bit_register(I2C0CONSET, 5, 1);
         
@@ -65,19 +72,39 @@ int i2c_address_slave(uint32_t address)
         
         *I2C0CONSET |= 0x08;*/
         //--- FAST MODE PLUS ---
-                
-        //scrivo l'indirizzo da trasmettere nell'apposito registro di trasmissione
+        
+       
+        //scrivo lo slave address
         *I2DAT = address;
+                
+        printdebug(*I2DAT);
+        
+        printdebug(*I2STAT);
+        
+        *I2C0CONSET |= 0x04;
         
         //resetto l'SI bit a 0
         *I2C0CONCLR |= 0x08;
         
+        printdebug(*I2STAT);
+        
+        volatile int i = 0;
+        for(i = 0; i < 1000000; i++)
+        {}
+        
+        printdebug(*I2DAT);
+        
+        
         *(volatile uint32_t *) 0x5003003c = 0x0e;
+        
+        //putstring("SONO QUI");
         
         //si attende che SI torni ad 1 e quando succede si verifica lo stato
         while ( !(((*I2C0CONSET) & (0x08)) != 0) )
         {
         }
+        
+        putstring("SONO QUA");
         
         *(volatile uint32_t *) 0x5003003c |= 0x0d;
         

@@ -126,3 +126,18 @@ void write_value_register(volatile uint32_t *reg, int start_bit, int end_bit, ui
         *reg = register_value;
         return;
 }
+
+void printdebug(uint32_t value)
+{
+        unsigned char buf[4];
+
+        buf[0] = value >> 24;
+        buf[1] = value >> 16;
+        buf[2] = value >> 8;
+        buf[3] = value;
+        
+        putchar(buf[0]);
+        putchar(buf[1]);
+        putchar(buf[2]);
+        putchar(buf[3]);
+}

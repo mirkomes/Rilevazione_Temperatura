@@ -6,6 +6,7 @@ extern void serial_setup(void);
 extern void write_bit_register(volatile uint32_t *reg, int offset, int value);
 extern void write_value_register(volatile uint32_t *reg, int start_bit, int end_bit, uint32_t value);
 extern void gpio_setup(void);
+extern void printdebug(uint32_t value);
 
 #define REG(x) ((volatile uint32_t *)(x))
 

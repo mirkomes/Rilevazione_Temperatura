@@ -12,7 +12,7 @@ HOSTCC ?= gcc
 LIB = liblpclib.a
 LOBJ = lpclib.o
 
-PROG = fix-checksum
+PROG = fix-checksum program
 
 all: $(PROG)
 

@@ -1,3 +1,12 @@
+/* RAM boot: the first kB of RAM is unused, place the stack here */
+.section .text.ramboot
+.global _entry_ram
+_entry_ram:
+	mov	r0, pc
+	sub	r0, #12
+	mov	sp, r0
+	b	_entry
+
 .section .text.romboot
 .global _entry_rom
 _entry_rom:

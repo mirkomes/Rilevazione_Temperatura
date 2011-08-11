@@ -14,24 +14,32 @@ STRIP           = $(CROSS_COMPILE)strip
 OBJCOPY         = $(CROSS_COMPILE)objcopy
 OBJDUMP         = $(CROSS_COMPILE)objdump
 
-all: main.bin checksum
+all: mainrom.bin mainram.bin checksum
 
-main.bin: main checksum
-	$(OBJCOPY) -O binary main $@
+mainrom.bin: mainrom checksum
+	$(OBJCOPY) -O binary mainrom $@
 	./checksum/fix-checksum $@
+
+mainram.bin: mainram
+	$(OBJCOPY) -O binary mainram $@
 
 checksum:
 	$(MAKE) -C checksum
 
-main: main.o boot.o vectors.o io.o i2c.o gpio.o
+mainrom: main.o boot.o vectors.o io.o i2c.o gpio.o
 	$(LD) $(LDFLAGS) linker.lds $^ -o $@
+
+mainram: main.o boot.o vectors.o io.o i2c.o gpio.o
+	$(LD) $(LDFLAGS) ram.lds $^ -o $@
+
 
 .PHONY: all
 
-main.bin: main checksum
+mainrom.bin: mainrom checksum
+mainram.bin: mainram
 
 clean:
-	rm -f main *.o main.bin
+	rm -f mainrom mainram *.o mainrom.bin mainram.bin
 	$(MAKE) -C checksum clean
 
 .PHONY: checksum clean

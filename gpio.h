@@ -1,3 +1,5 @@
+#include "io.h"
+
 #define GPIO1_6		REG(0x400440A4)
 #define GPIO1_7		REG(0x400440A8)
 

@@ -13,11 +13,8 @@ void gpio_setup(void)
         //configurazione pin I2C
         //configurazione su UEXT (SCL)
         *GPIO0_4 |= 0x01;
-        //write_bit_register(GPIO0_4, 9, 1); //FAST MODE PLUS
-        
         //configurazione su UEXT (SDA)
         *GPIO0_5 |= 0x01;
-        //write_bit_register(GPIO0_5, 9, 1); //FAST MODE PLUS
         
         //pin out per i2c
         *GPIO0DIR |= 0x30;

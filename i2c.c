@@ -31,13 +31,17 @@ int i2c_send_start(void)
         *I2C0CONSET |= 0x20;
         
         //controllo quando il bit SI diventa 1 e se il codice di stato è 0x08 tutto è andato a buon fine
-        while ( !(((*I2C0CONSET) & (0x08)) != 0) )
+        //while ( !(((*I2C0CONSET) & (0x08)) != 0) )
+        while ( *I2STAT != 0x08 )
         {
         }
         
+        puts("Invio start, stato: ");
+        printhex(*I2STAT);
+        putc('\n');
+        
         //quando l'SI bit diventa 1 lo start bit è stato inviato e si controlla lo stato
-        uint32_t valore = *I2STAT;
-        return (valore - 0x08);
+        return (*I2STAT - 0x08);
 }
 
 //funzione utilizzata per indirizzare lo slave alla comunicazione (lettura o scrittura)
@@ -48,24 +52,25 @@ int i2c_address_slave(uint32_t address)
         //scrivo lo slave address
         *I2DAT = address;
         
+        puts("Valore dell'indirizzo caricato da spedire: ");
+        printhex(*I2DAT);
+        putc('\n');
+        
         //verifico il contenuto di I2C0CONSET
-        if ( *I2C0CONSET & 0x20 )
-	      putstring("STA è 1\n");
+        puts("Stato i2c: ");
+        printhex(*I2C0CONSET);
+        putc('\n');
         
-        if ( *I2C0CONSET & 0x08 )
-	      putstring("SI è 1\n");
-        
-        if (!( *I2C0CONSET & 0x10 ))
-	      putstring("STO è 0\n");
-        
-        if (!(*I2STAT - 0x08))
-	      putstring("Stato 8\n");
+        puts("Stato i2c prima di cancellare SI bit: ");
+        printhex(*I2STAT);
+        putc('\n');
 	      
         //resetto STA e SI bit a 0
         *I2C0CONCLR |= 0x28;
         
-        if (!(*I2STAT - 0xF8))
-	      putstring("Stato F8\n");
+        puts("Stato i2c dopo aver cancellato SI bit: ");
+        printhex(*I2STAT);
+        putc('\n');
                 
         *(volatile uint32_t *) 0x5003003c = 0x0e;
         
@@ -74,7 +79,9 @@ int i2c_address_slave(uint32_t address)
         {
         }
         
-        *(volatile uint32_t *) 0x5003003c |= 0x0d;
+        puts("Esco dal ciclo\n");
+        
+        *(volatile uint32_t *) 0x5003003c = 0x0d;
         
         //si legge lo stato, è tutto OK se è pari a 0x18
         uint32_t valore = *I2STAT;

@@ -9,6 +9,7 @@ extern void gpio_setup(void);
 extern void printdebug(uint32_t value);
 extern int gets(int lenght, char *stringaLetta);
 extern int getc(void);
+extern void printhex(uint32_t val);
 
 #define REG(x) ((volatile uint32_t *)(x))
 

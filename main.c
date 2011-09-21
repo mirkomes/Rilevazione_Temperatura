@@ -1,5 +1,6 @@
 #include "main.h"
 #include "i2c.h"
+#include "io.h"
 
 void main(void)
 {
@@ -8,7 +9,7 @@ void main(void)
        *(volatile uint32_t *)0x50038000 = 0x0f;
        *(volatile uint32_t *) 0x5003003c = 0xfff;
        
-       //FASE 1 - CONFIGURAZIONE DEI COMPONENTI HARDWARE
+       //FASE 1 - CONFIGURAZIONE DEI COMPONENTI HARDWARE I2C
        
        //CONFIGURAZIONE DEL SENSORE DI TEMPERATURA
        //indirizzamento del sensore in scrittura
@@ -18,46 +19,43 @@ void main(void)
        //i2c STOP
        i2c_send_stop();
        
-       //FASE 2 - LETTURA DEI DATI DI TEMPERATURA
-       
        i2c_address_slave_start(TEMP_WRITE);
        read_temp_config(); //configurazione per la lettura della temperatura
        i2c_send_stop();
        
-       //abilitazione invio di ACK da parte del master
-       *I2C0CONSET |= 0x04;
+       //---------------------------------------------------
        
-       i2c_send_start(); //start bit
+       unsigned long j; //variabile utilizzata per impostare i periodi iniziali di attivazione
+       struct task **t, *trun; //strutture e puntatori a strutture task
        
-       *I2DAT = TEMP_READ; //modalità di lettura del sensore
-       *I2C0CONCLR = 0x28;
+       puts("Inizializzazione OK...\n");
+       //inizializzazione delle prime attivazioni per ogni task
+       j = jiffies + HZ/2;
        
-       while (*I2STAT != 0x40)
-       {
-	     //attesa dell'ack in modalità lettura
+        for (t = __task_start; t < __task_end; t++) {
+	struct task *p = *t;
+	puts(p->name); putc('\n');
+	if (p->init)
+	p->init(p->arg);
+	p->next_run += j;
         }
-        
-        uint32_t temp = 0x0;
-        
-       //ricezione del byte più significativo contenente la temperatura intera
-       *I2C0CONCLR = 0x08;
-       
-       while (*I2STAT != 0x50)
-       {
-	     //attesa del primo byte
+
+        //ciclo infinito di selezione dei task
+        while (1) {
+	      //trun rappresenta il prossimo task ad essere eseguito, all'inizio è impostato a 0
+	      trun = 0;
+	      //si procede la selezione scandendo tutti i task e guardando chi è che ha il next_run più stringente
+	      for (t = __task_start; t < __task_end; t++) {
+		    struct task *p = *t;
+		    if (!trun || p->next_run < trun->next_run)
+		    trun = p;
+	      }
+	      //si aspetta che arrivi il momento di avviare il task
+	      while (jiffies < trun->next_run)
+		    ;
+	      
+	      //si avvia il task e si aggiorna il suo prossimo tempo di esecuzione
+	      trun->arg = trun->f(trun->arg);
+	      trun->next_run += trun->period;
         }
-       
-       temp = *I2DAT;
-       temp = temp << 4;
-       
-       //ricezione del byte meno significativo contenente la temperatura più fine
-       *I2C0CONCLR = 0x08;
-       while (*I2STAT != 0x50)
-       {
-	     //attesa del secondo byte
-        }       
-       
-       temp |= (*I2DAT >> 4);
-       printhex(temp);
-       
 }

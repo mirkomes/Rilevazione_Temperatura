@@ -57,7 +57,7 @@ void i2c_temp_config(void)
 	      //aspetto di ricevere l'ack per il byte appena inviato
         }
         
-        //imposto la velocità di conversione di temperatura a 8KHz
+        //imposto la velocità di conversione di temperatura a 1Hz
         *I2DAT = 0x60;
         *I2C0CONCLR = 0x08;
         
@@ -66,7 +66,7 @@ void i2c_temp_config(void)
 	      //aspetto di ricevere l'ack per il byte appena inviato
         }
         
-        *I2DAT = 0xe0; //bit CR0 = CR1 = 1
+        *I2DAT = 0x60; //bit CR0 = 1; bit CR1 = 0;
         *I2C0CONCLR = 0x08;
         
         while ( *I2STAT != 0x28 )
@@ -78,15 +78,17 @@ void i2c_temp_config(void)
 //funzione di invio segnale di START. In caso di errore viene ritornato un valore diverso da 0,
 //altrimenti si ritorna il valore 0.
 void i2c_send_start(void)
-{
+{      
         //imposto il bit STA = 1
         *I2C0CONSET |= 0x20;
         
         //controllo quando il bit SI diventa 1 e se il codice di stato è 0x08 tutto è andato a buon fine
         //while ( !(((*I2C0CONSET) & (0x08)) != 0) )
-        while ( *I2STAT != 0x08 )
+        while ( (*I2C0CONSET & 0x08) != 0x08)
         {
+	      
         }
+        
 }
 
 void i2c_send_stop(void)

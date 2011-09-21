@@ -2,6 +2,8 @@ OUTPUT_FORMAT("elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_entry_rom)
 
+	jiffies = 0x40018008;
+
 SECTIONS
 {
         . = 0x0;
@@ -20,6 +22,10 @@ SECTIONS
 	      *(.data);
 	      _edata = .;
         }
+
+	__task_start = .;
+	.task : {*(.task); }
+	__task_end = .;
 
         . = ALIGN(16);
         .bss : {

@@ -13,23 +13,66 @@ void i2c_setup(void)
         //*I2C0CONCLR |= 0x20;
         *I2C0CONCLR |= 0x6c;
         
+        //IMPOSTAZIONE A 100KHz
+        *I2SCLL |= 0x03c;
+        *I2SCLH |= 0x03c;
+        
         //FAST MODE - IMPOSTAZIONE A 400KHz
-        *I2SCLL |= 0xf;
-        *I2SCLH |= 0xf;
+        //*I2SCLL |= 0xf;
+        //*I2SCLH |= 0xf;
         
         //abilito l'interfaccia I2C
         *I2C0CONSET |= 0x40;
         
 }
 
-int i2c_temp(int write)
+//configurazione per la lettura della temperatura dal sensore
+void read_temp_config(void)
 {
-        //invio dello start bit
-        i2c_send_start();
+                
+        //invio dell'indirizzo del temperature register
+        *I2DAT = 0x00;
+        *I2C0CONCLR = 0x08;
         
-        int err = (i2c_address_slave(TEMP_WRITE) == 0) ? 0 : 1;
+        while ( *I2STAT != 0x28 )
+        {
+	      //aspetto di ricevere l'ack per il byte appena inviato
+        } 
         
-        return err;
+}
+
+//configurazione del sensore di temperatura (necessario se serve una configurazione differente da
+//quella gia impostata di default ossia conversioni automatiche di temperatura con frequenza di 4KHz)
+void i2c_temp_config(void)
+{
+        
+        //invio dell'indirizzo del registro di configurazione del sensore di temperatura
+        //(configuration register = 0x01)
+        //invio dell'indirizzo del configuration register
+        *I2DAT = 0x01;
+        *I2C0CONCLR = 0x08;
+        
+        while ( *I2STAT != 0x28 )
+        {
+	      //aspetto di ricevere l'ack per il byte appena inviato
+        }
+        
+        //imposto la velocità di conversione di temperatura a 8KHz
+        *I2DAT = 0x60;
+        *I2C0CONCLR = 0x08;
+        
+        while ( *I2STAT != 0x28 )
+        {
+	      //aspetto di ricevere l'ack per il byte appena inviato
+        }
+        
+        *I2DAT = 0xe0; //bit CR0 = CR1 = 1
+        *I2C0CONCLR = 0x08;
+        
+        while ( *I2STAT != 0x28 )
+        {
+	      //aspetto di ricevere l'ack per il byte appena inviato
+        }
 }
 
 //funzione di invio segnale di START. In caso di errore viene ritornato un valore diverso da 0,
@@ -46,10 +89,24 @@ void i2c_send_start(void)
         }
 }
 
-//funzione utilizzata per indirizzare lo slave alla comunicazione (lettura o scrittura)
-//in caso di errore viene ritornato un valore diverso da 0 altrimenti viene ritornato 0.
-int i2c_address_slave(uint32_t address)
+void i2c_send_stop(void)
+{
+        //condizione di stop
+        *I2C0CONCLR = 0x08;
+        *I2C0CONSET = 0x50;
+        
+        //attesa dell'invio della condizione di stop
+        while (( *I2C0CONSET & 0x10 ) != 0x0)
+        {
+	      
+        }
+}
+
+//funzione utilizzata per indirizzare lo slave alla comunicazione (lettura o scrittura) insieme ad un bit di start
+void i2c_address_slave_start(uint32_t address)
 {      
+        //invio dello start bit
+        i2c_send_start();
         
         //scrivo lo slave address
         *I2DAT = address;
@@ -58,16 +115,9 @@ int i2c_address_slave(uint32_t address)
         *I2C0CONCLR = 0x28;
         
         //si attende che SI torni ad 1 e quando succede si verifica lo stato
-        while ( !(((*I2C0CONSET) & (0x08)) != 0) )
+        while (*I2STAT != 0x18)
         {
         }
-        
-        //si legge lo stato, è tutto OK se è pari a 0x18
-        uint32_t valore = *I2STAT;
-        
-        printhex(*I2STAT);
-        
-        return (valore - 0x18);
         
 }
 

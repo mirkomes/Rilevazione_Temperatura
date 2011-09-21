@@ -2,8 +2,10 @@
 
 extern void i2c_setup(void);
 extern void i2c_send_start(void);
-extern int i2c_address_slave(uint32_t address);
-extern int i2c_temp(int write);
+extern void i2c_address_slave_start(uint32_t address);
+extern void i2c_temp_config(void);
+extern void i2c_send_stop(void);
+extern void read_temp_config(void);
 
 #define	I2SCLL		REG(0x40000014)
 #define	I2SCLH		REG(0x40000010)

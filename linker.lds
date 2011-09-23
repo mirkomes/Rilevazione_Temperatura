@@ -10,7 +10,6 @@ SECTIONS
         .vectors : { *(.vectors) }
         .text.boot : {
 	    *(.text.romboot);
-	    *(.text.secondboot);
         }
         .text : { *(.text); }	
         .rodata : { *(.rodata) }

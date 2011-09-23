@@ -9,7 +9,6 @@ SECTIONS
 	. = 0x10000400;
 	.text.boot : {
 		    *(.text.ramboot);
-		    *(.text.anyboot);
 	}
 	.text : { *(.text)}
 	.rodata : { *(.rodata) }

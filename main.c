@@ -36,7 +36,7 @@ void main(void)
        
        puts("Inizializzazione OK...\n");
        //inizializzazione delle prime attivazioni per ogni task
-       j = jiffies + HZ/2;
+       j = jiffies + HZ;
        
         for (t = __task_start; t < __task_end; t++) {
 	struct task *p = *t;
@@ -58,7 +58,7 @@ void main(void)
 		    ;
 	      
 	      //si avvia il task e si aggiorna il suo prossimo tempo di esecuzione
-	      trun->f(buf);
+	      trun->f();
 	      trun->next_run += trun->period;
         }
 }

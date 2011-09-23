@@ -1,5 +1,5 @@
 CFLAGS = -ffreestanding -Wall -mthumb -march=armv7-m -O2 -ggdb
-ASFLAGS = -mthumb -march=armv7-m
+ASFLAGS = -mthumb -march=armv7-m 
 LDFLAGS = -Bstatic -T
 
 CROSS_COMPILE	?= /home/mirko/Universita/Sistemi_Linux_Real_Time/arm-2010q1/bin/arm-none-eabi-
@@ -26,10 +26,10 @@ mainram.bin: mainram
 checksum:
 	$(MAKE) -C checksum
 
-mainrom: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o
+mainrom: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o
 	$(LD) $(LDFLAGS) linker.lds $^ -o $@
 
-mainram: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o
+mainram: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o
 	$(LD) $(LDFLAGS) ram.lds $^ -o $@
 
 

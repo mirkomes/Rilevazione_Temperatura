@@ -25,7 +25,6 @@ SECTIONS
 
 	__temp_start = .;
 	.temp : {*(.temp); }
-	__temp_end = .;
 
 	__task_start = .;
 	.task : {*(.task); }

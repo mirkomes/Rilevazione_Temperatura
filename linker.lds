@@ -23,6 +23,10 @@ SECTIONS
 	      _edata = .;
         }
 
+	__temp_start = .;
+	.temp : {*(.temp); }
+	__temp_end = .;
+
 	__task_start = .;
 	.task : {*(.task); }
 	__task_end = .;

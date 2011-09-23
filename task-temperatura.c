@@ -1,7 +1,7 @@
 #include "main.h"
 #include "i2c.h"
 
-void *task_temperatura(void *arg)
+void task_temperatura(void *arg)
 {
        //LETTURA DEI DATI DI TEMPERATURA
        
@@ -21,7 +21,7 @@ void *task_temperatura(void *arg)
 	     {
 		   //si è verificato un bus-error
 		   i2c_send_stop();
-		   return arg;
+		   return;
 	     }
         }
         
@@ -37,7 +37,7 @@ void *task_temperatura(void *arg)
 	     {
 		   //si è verificato un bus-error
 		   i2c_send_stop();
-		   return arg;
+		   return;
 	     }
         }
        
@@ -53,7 +53,7 @@ void *task_temperatura(void *arg)
 	     {
 		   //si è verificato un bus-error
 		   i2c_send_stop();
-		   return arg;
+		   return;
 	     }
         }       
        
@@ -61,16 +61,48 @@ void *task_temperatura(void *arg)
        
        i2c_send_stop(); //fine della lettura di temperatura
        
+       //salvataggio della temperatura nel buffer circolare in memoria
+       struct temp *buf = arg;
+       buf->write(temp);
+       
        printhex(temp);
        putc('\n');
-       return arg;
 }
 
 struct task task_temp = {
-	.f = task_temperatura,
-	.name = "Leggi-Temperatura",
-	.period = HZ, //leggo la temperatura una volta al secondo
-	.next_run = 1,
+        .f = task_temperatura,
+        .name = "Leggi-Temperatura",
+        .period = HZ, //leggo la temperatura una volta al secondo
+        .next_run = 1,
+};
+
+static uint16_t c_buffer[16];
+static short b_index[1];
+
+void write_buffer(void *arg)
+{
+        //scrittura dei valori nel buffer        
+        c_buffer[b_index[0]++] = (uint16_t*) arg; //valore di temperatura da scrivere
+        b_index[0] = (b_index[0] > 0xf) ? 0x0 : b_index[0];
+}
+
+void *read_buffer(void)
+{
+        return (void *) c_buffer;
+}
+
+void index_init(void)
+{
+        b_index[0] = 0x0; //azzeramento dell'indice per sicurezza
+}
+
+struct temp measures_buffer = {
+        .valori = c_buffer,
+        .write = write_buffer,
+        .read = read_buffer,
+        .init = index_init,
+        .index = b_index
 };
 
 declare_task(task_temp);
+declare_temp(measures_buffer);

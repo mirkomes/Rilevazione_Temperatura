@@ -88,7 +88,6 @@ void i2c_send_start(void)
         {
 	      
         }
-        
 }
 
 void i2c_send_stop(void)
@@ -119,7 +118,7 @@ void i2c_address_slave_start(uint32_t address)
         //si attende che SI torni ad 1 e quando succede si verifica lo stato
         while (*I2STAT != 0x18)
         {
+
         }
-        
 }
 

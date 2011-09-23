@@ -17,3 +17,5 @@ extern void read_temp_config(void);
 //indirizzi dei dispositivi i2c collegati
 #define	TEMP_WRITE	0x90
 #define	TEMP_READ		0x91
+#define	MEMORY_WRITE	0xa0
+#define	MEMORY_READ	0xa1

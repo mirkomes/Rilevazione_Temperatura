@@ -8,12 +8,15 @@ void main(void)
        //abilitazione dei led per debugging
        *(volatile uint32_t *)0x50038000 = 0x0f;
        *(volatile uint32_t *) 0x5003003c = 0xfff;
+       *(volatile uint32_t *) 0x5003003c = 0x0;
        
        //FASE 1 - CONFIGURAZIONE DEI COMPONENTI HARDWARE I2C
        
        //CONFIGURAZIONE DEL SENSORE DI TEMPERATURA
        //indirizzamento del sensore in scrittura
-        i2c_address_slave_start(TEMP_WRITE);
+       
+       
+       i2c_address_slave_start(TEMP_WRITE);
        //configurazione del sensore di temperatura
        i2c_temp_config();
        //i2c STOP
@@ -28,15 +31,15 @@ void main(void)
        unsigned long j; //variabile utilizzata per impostare i periodi iniziali di attivazione
        struct task **t, *trun; //strutture e puntatori a strutture task
        
+       struct temp *buf = __temp_start[0]; //prelevo la struttura del buffer circolare in memoria       
+       buf->init(); //inizializzazione
+       
        puts("Inizializzazione OK...\n");
        //inizializzazione delle prime attivazioni per ogni task
        j = jiffies + HZ/2;
        
         for (t = __task_start; t < __task_end; t++) {
 	struct task *p = *t;
-	puts(p->name); putc('\n');
-	if (p->init)
-	p->init(p->arg);
 	p->next_run += j;
         }
 
@@ -55,7 +58,7 @@ void main(void)
 		    ;
 	      
 	      //si avvia il task e si aggiorna il suo prossimo tempo di esecuzione
-	      trun->arg = trun->f(trun->arg);
+	      trun->f(buf);
 	      trun->next_run += trun->period;
         }
 }

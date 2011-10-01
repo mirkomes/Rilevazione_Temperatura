@@ -8,7 +8,8 @@ void task_pw(void)
         struct temp *buf = __temp_start[0];
         
         //prelevo l'indirizzo di scrittura in memoria
-        uint16_t addrs = buf->last_address[0];
+        //verifico che non sia arrivato al limite della memoria
+        uint16_t addrs = (buf->last_address[0] < 0x7fbf) ? buf->last_address[0] : 0x0;
         
         puts("Indirizzo memoria: ");
         printhex(addrs);
@@ -93,7 +94,7 @@ void task_pw(void)
         //aggiornamento del prossimo indirizzo di memoria da scrivere
         //se ci sono errori sul bus l'aggiornamento non viene fatto e al prossimo ciclo vengono sovrascritti i
         //dati errati
-        buf->last_address[0] = (buf->last_address[0] < 0x7fe0) ? addrs + NUM_MEASUREMENTS*2 : 0x0;
+        buf->last_address[0] = addrs + NUM_MEASUREMENTS*2;
         
         puts("Fine scrittura memoria\n");
 }

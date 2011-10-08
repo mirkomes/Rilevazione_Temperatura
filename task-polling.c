@@ -157,6 +157,7 @@ void polling_buttons(void)
 		    }
 		    
 		    int i;
+		    uint16_t misura;
 		    for (i = 0; i < numero_cicli - 1; i++)
 		    {
 				*I2C0CONCLR = 0x08;
@@ -169,7 +170,7 @@ void polling_buttons(void)
 					      return;
 				        }
 				}
-				printhex(*I2DAT);
+				misura = (*I2DAT << 8) & 0x0f00;
 				
 				//secondo byte misurazione temperatura
 				*I2C0CONCLR = 0x08;
@@ -182,7 +183,8 @@ void polling_buttons(void)
 					      return;
 				        }
 				}
-				printhex(*I2DAT);
+				misura |= *I2DAT;
+				printdec(misura);
 				putc('\n');
 		    }
 		    
@@ -197,7 +199,7 @@ void polling_buttons(void)
 				}
 		    }
 
-		    printhex(*I2DAT);
+		    misura = (*I2DAT << 8) & 0x0f00;
 
 		    *I2C0CONCLR = 0x0c;
 		    while (*I2STAT != 0x58)
@@ -210,7 +212,8 @@ void polling_buttons(void)
 				}
 		    }
 		    
-		    printhex(*I2DAT);
+		    misura |= *I2DAT;
+		    printdec(misura);
 		    putc('\n');
 		    
 		    i2c_send_stop();

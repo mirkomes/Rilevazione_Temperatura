@@ -111,3 +111,153 @@ void printhex(uint32_t val)
            }
            putc('>');
 }
+
+//funzione di traduzione di un dato di temperatura da esadecimale ad ASCII con relativa stampa
+void printdec(uint16_t val)
+{
+        //segno della temperatura
+        //in caso di temperatura negativa si fa il complemento a 2 e si prepara il segno meno da stampare
+        char sign = (val & (0x1 << 11)) ? '-' : '+';
+        
+        //se il valore è negativo allora preparo il complemento a 2 su cui lavorare
+        val = (val & (0x1 << 11)) ? (~(val | 0xf000)) + 1 : val;
+        //trasformazione del valore esadecimale in ASCII
+        //separazione della parte intera dalla parte decimale
+        uint8_t intero = (val & 0x0ff0) >> 4;
+        uint8_t decimale = (val & 0x000f);
+        
+        //preparazione del valore delle centinaia in ASCII
+        char centinaia = 0;
+        if ((intero - 100) >= 0)
+        {
+	      centinaia = 1 + '0'; //valore ASCII corrispondente ad 1
+	      intero = intero - 100;
+        }
+        
+        //preparazione del valore delle unità in ASCII
+        char i, unita;
+        for(i = 90; i >= 0; i -= 10)
+        {
+	      if ((intero - i) >= 0)
+	      {
+		    unita = (intero - i) + '0'; //valore ASCII dell'unità
+		    break;
+	      }
+        }
+        
+        char decine = ((intero - (unita - '0'))/10) + '0'; //valore ASCII delle decine
+        char c1, c2, c3, c4 = 0;
+        
+        //gestione della parte decimale
+        //caso di temperature positive
+        
+        switch(decimale)
+        {
+	      case 0:
+		    c1 = c2 = c3 = c4 = '0';
+		    break;
+	      case 1:
+		    c1 = '0';
+		    c2 = '0' + 6;
+		    c3 = '0' + 2;
+		    c4 = '0' + 5;
+		    break;
+	      case 2:
+		    c1 = '0' + 1;
+		    c2 = '0' + 2;
+		    c3 = '0' + 5;
+		    c4 = '0';
+		    break;
+	      case 3:
+		    c1 = '0' + 1;
+		    c2 = '0' + 8;
+		    c3 = '0' + 7;
+		    c4 = '0' + 5;
+		    break;
+	      case 4:
+		    c1 = '0' + 2;
+		    c2 = '0' + 5;
+		    c3 = '0';
+		    c4 = '0';
+		    break;
+	      case 5:
+		    c1 = '0' + 3;
+		    c2 = '0' + 1;
+		    c3 = '0' + 2;
+		    c4 = '0' + 5;
+		    break;
+	      case 6:
+		    c1 = '0' + 3;
+		    c2 = '0' + 7;
+		    c3 = '0' + 5;
+		    c4 = '0';
+		    break;
+	      case 7:
+		    c1 = '0' + 4;
+		    c2 = '0' + 3;
+		    c3 = '0' + 7;
+		    c4 = '0' + 5;
+		    break;
+	      case 8:
+		    c1 = '0' + 5;
+		    c2 = '0';
+		    c3 = '0';
+		    c4 = '0';
+		    break;
+	      case 9:
+		    c1 = '0' + 5;
+		    c2 = '0' + 6;
+		    c3 = '0' + 2;
+		    c4 = '0' + 5;
+		    break;
+	      case 10:
+		    c1 = '0' + 6;
+		    c2 = '0' + 2;
+		    c3 = '0' + 5;
+		    c4 = '0';
+		    break;
+	      case 11:
+		    c1 = '0' + 6;
+		    c2 = '0' + 8;
+		    c3 = '0' + 7;
+		    c4 = '0' + 5;
+		    break;
+	      case 12:
+		    c1 = '0' + 7;
+		    c2 = '0' + 5;
+		    c3 = '0';
+		    c4 = '0';
+		    break;
+	      case 13:
+		    c1 = '0' + 8;
+		    c2 = '0' + 1;
+		    c3 = '0' + 2;
+		    c4 = '0' + 5;
+		    break;
+	      case 14:
+		    c1 = '0' + 8;
+		    c2 = '0' + 7;
+		    c3 = '0' + 5;
+		    c4 = '0';
+		    break;
+	      case 15:
+		    c1 = '0' + 9;
+		    c2 = '0' + 3;
+		    c3 = '0' + 7;
+		    c4 = '0' + 5;
+		    break;
+        }
+        
+        //stampo i valori su seriale
+        putc(sign);
+        if (centinaia > 0)
+	      putc(centinaia);
+        putc(decine);
+        putc(unita);
+        putc(',');
+        putc(c1);
+        putc(c2);
+        putc(c3);
+        putc(c4);
+        
+}

@@ -6,6 +6,8 @@ extern void i2c_address_slave_start(uint32_t address);
 extern void i2c_temp_config(void);
 extern void i2c_send_stop(void);
 extern void read_temp_config(void);
+extern uint16_t read_16bit_data(uint16_t indirizzo);
+extern void write_16bit_data(uint16_t valore, uint16_t indirizzo);
 
 #define	I2SCLL		REG(0x40000014)
 #define	I2SCLH		REG(0x40000010)

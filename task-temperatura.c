@@ -96,7 +96,11 @@ void *read_buffer(void)
 void index_init(void)
 {
         b_index[0] = 0x0; //azzeramento dell'indice per sicurezza
-        l_addrs[0] = 0x0; //si inizia a scrivere la eprom dall'indirizzo 0x0
+        
+        l_addrs[0] = read_16bit_data(0x7fe2);
+        
+        puts("E' stato prelevato il dato: ");
+        printhex(l_addrs[0]);
 }
 
 struct temp measures_buffer = {

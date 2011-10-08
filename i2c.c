@@ -122,3 +122,164 @@ void i2c_address_slave_start(uint32_t address)
         }
 }
 
+//legge un valore di 2 byte all'indirizzo specificato
+uint16_t read_16bit_data(uint16_t indirizzo)
+{
+            
+        //si preleva l'indirizzo da cui bisogna iniziare a scrivere la memoria eprom con i dati di temperatura
+        i2c_address_slave_start(MEMORY_WRITE);
+        
+        //invio del byte più significativo dell'indirizzo da leggere
+        *I2DAT = (indirizzo & 0xff00) >> 8;
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return 0x0;
+	     }
+        }
+        
+        //invio del byte meno significativo dell'indirizzo da leggere
+        *I2DAT = indirizzo & 0x00ff;
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return 0x0;
+	     }
+        }
+        
+        //abilitazione invio di ACK da parte del master
+        *I2C0CONSET |= 0x04;
+        
+        //invio di START bit più indirizzamento in lettura
+        *I2C0CONSET |= 0x20;
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x10)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return 0x0;
+	     }
+        }
+        
+        *I2DAT = MEMORY_READ; //modalità di lettura del sensore
+        *I2C0CONCLR = 0x28;
+       
+        while (*I2STAT != 0x40)
+        {
+	     //attesa dell'ack in modalità lettura
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return 0x0;
+	     }
+        }
+        
+        //ricezione della parte più significativa del dato
+        *I2C0CONCLR = 0x08;
+        while (*I2STAT != 0x50)
+        {
+	      if (*I2STAT == 0x0)
+	      {
+		    //si è verificato un bus-error
+		    i2c_send_stop();
+		    return 0x0;
+	      }
+	      
+        }
+        
+        uint16_t data = (*I2DAT << 8) & 0xff00;
+        
+        //ricezione della parte meno significativa del dato
+        *I2C0CONCLR = 0x0c;
+        while (*I2STAT != 0x58)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return 0x0;
+	     }
+        }
+        
+        data |= *I2DAT;
+        i2c_send_stop();
+        
+        return data;
+}
+
+
+//scrive un valore di 2 byte all'indirizzo specificato
+void write_16bit_data(uint16_t valore, uint16_t indirizzo)
+{
+        //si preleva l'indirizzo da cui bisogna iniziare a scrivere la memoria eprom con i dati di temperatura
+        i2c_address_slave_start(MEMORY_WRITE);
+
+        *I2DAT = (indirizzo & 0xff00) >> 8;
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return;
+	     }
+        }
+        
+        *I2DAT = indirizzo & 0x00ff;
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return;
+	     }
+        }
+        
+        *I2DAT = (valore & 0xff00) >> 8; //parte più significativa
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return;
+	     }
+        }
+        
+        *I2DAT = valore & 0x00ff; //parte meno significativa
+        *I2C0CONCLR = 0x08;
+        
+        while (*I2STAT != 0x28)
+        {
+	     if (*I2STAT == 0x0)
+	     {
+		   //si è verificato un bus-error
+		   i2c_send_stop();
+		   return;
+	     }
+        }
+        
+        i2c_send_stop();
+        
+}

@@ -73,7 +73,7 @@ void read_mem(void)
         
         //aspetto i dati in arrivo dalla memoria
         int i = 0;
-        for ( i = 0; i < NUM_MEASUREMENTS; i++)
+        for ( i = 0; i < NUM_MEASUREMENTS - 1; i++)
         {
 	      //primo byte misurazione temperatura
 	      *I2C0CONCLR = 0x08;
@@ -133,7 +133,7 @@ void read_mem(void)
 	     }
         }
         
-        puts("Primo byte ultimo dato memoria: ");
+        puts("Secondo byte ultimo dato memoria: ");
         printhex(*I2DAT);
         putc('\n');
         

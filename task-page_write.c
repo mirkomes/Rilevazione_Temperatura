@@ -10,6 +10,15 @@ void task_pw(void)
         //prelevo l'indirizzo di scrittura in memoria
         //verifico che non sia arrivato al limite della memoria
         uint16_t addrs = (buf->last_address[0] < 0x7fbf) ? buf->last_address[0] : 0x0;
+        if (!addrs)
+        {
+	      write_16bit_data(0x0, 0x7fe2);
+	      volatile int j;
+	      for (j = 0; j < 1000; j++)
+	      {
+		    //pausa per evitare sovraccarichi alla eprom
+	      }
+        }
         
         puts("Indirizzo memoria: ");
         printhex(addrs);
@@ -92,9 +101,17 @@ void task_pw(void)
         i2c_send_stop();
         
         //aggiornamento del prossimo indirizzo di memoria da scrivere
-        //se ci sono errori sul bus l'aggiornamento non viene fatto e al prossimo ciclo vengono sovrascritti i
-        //dati errati
+        //se ci sono errori sul bus l'aggiornamento non viene fatto e al prossimo ciclo vengono sovrascritti
+        //i dati dell'ultima pagina salvata non completamente
         buf->last_address[0] = addrs + NUM_MEASUREMENTS*2;
+        
+        volatile int j;
+        for (j = 0; j < 10000; j++)
+        {
+	      //pausa per evitare sovraccarichi alla eprom
+        }
+        
+        write_16bit_data(buf->last_address[0], 0x7fe2);
         
         puts("Fine scrittura memoria\n");
 }

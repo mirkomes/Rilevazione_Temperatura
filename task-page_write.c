@@ -21,7 +21,7 @@ void task_pw(void)
 	      }
         }
 
-#if 0
+#if DEBUG
         puts("Indirizzo memoria: ");
         printhex(addrs);
         putc('\n');
@@ -97,7 +97,7 @@ void task_pw(void)
 		    }
 	      }
 	      
-#if 0
+#if DEBUG
 	      printhex(cbuf[i]);
 	      putc('\n');
 #endif

@@ -64,7 +64,7 @@ void task_temperatura(void)
        //salvataggio della temperatura nel buffer circolare in memoria
        struct temp *buf = __temp_start[0];
        buf->write(&temp);
-#if 0
+#if DEBUG
        printhex(temp);
        putc('\n');
 #endif
@@ -100,8 +100,9 @@ void index_init(void)
         
         l_addrs[0] = read_16bit_data(0x7fe2);
         
-        puts("E' stato prelevato il dato: ");
+        puts("Indirizzo di partenza: ");
         printhex(l_addrs[0]);
+	putc('\n');
 }
 
 struct temp measures_buffer = {

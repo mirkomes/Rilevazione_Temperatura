@@ -34,7 +34,7 @@ void main(void)
        struct temp *buf = __temp_start[0]; //prelevo la struttura del buffer circolare in memoria       
        buf->init(); //inizializzazione
        
-       puts("Inizializzazione OK...\n");
+       puts("Inizializzazione OK\n");
        //inizializzazione delle prime attivazioni per ogni task
        j = jiffies + HZ;
        

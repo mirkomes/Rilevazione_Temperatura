@@ -4,10 +4,14 @@
 //lettura dati dalla memoria ed elaborazione per invio alla seriale
 void read_mem(void)
 {
-        puts("Read memory\n");
         //leggo dalla ram l'indirizzo finale dove sono stati salvati dati in memoria
         struct temp *buf = __temp_start[0];
-        uint16_t addrs = buf->last_address[0] - NUM_MEASUREMENTS*2;
+        uint16_t addrs = buf->last_address[0] - NUM_MEASUREMENTS*2*NUM_PAGES;
+#if DEBUG
+	puts("Indirizzo:");
+	printhex(addrs);
+	putc('\n');
+#endif
         
         //indirizzamento della memoria in modalità scrittura
         i2c_address_slave_start(MEMORY_WRITE);
@@ -72,8 +76,9 @@ void read_mem(void)
         }
         
         //aspetto i dati in arrivo dalla memoria
+        uint16_t misura = 0x0;
         int i = 0;
-        for ( i = 0; i < NUM_MEASUREMENTS - 1; i++)
+        for ( i = 0; i < NUM_MEASUREMENTS*NUM_PAGES - 1; i++)
         {
 	      //primo byte misurazione temperatura
 	      *I2C0CONCLR = 0x08;
@@ -86,9 +91,7 @@ void read_mem(void)
 			  return;
 		    }
 	      }
-	      puts("Dato memoria 1: ");
-	      printhex(*I2DAT);
-	      putc('\n');
+	      misura = (*I2DAT & 0xf) << 8;
 	      
 	      //secondo byte misurazione temperatura
 	      *I2C0CONCLR = 0x08;
@@ -101,8 +104,8 @@ void read_mem(void)
 			  return;
 		    }
 	      }
-	      puts("Dato memoria 2: ");
-	      printhex(*I2DAT);
+	      misura |= (*I2DAT & 0x0ff);
+	      printdec(misura);
 	      putc('\n');
         }
         
@@ -118,9 +121,7 @@ void read_mem(void)
 	     }
         }
         
-        puts("Primo byte ultimo dato memoria: ");
-        printhex(*I2DAT);
-        putc('\n');
+        misura = (*I2DAT & 0xf) << 8;
         
         *I2C0CONCLR = 0x0c;
         while (*I2STAT != 0x58)
@@ -133,8 +134,8 @@ void read_mem(void)
 	     }
         }
         
-        puts("Secondo byte ultimo dato memoria: ");
-        printhex(*I2DAT);
+        misura |= (*I2DAT & 0x0ff);
+	printdec(misura);
         putc('\n');
         
         i2c_send_stop();
@@ -148,4 +149,7 @@ struct task task_read_memory = {
         .period = HZ*NUM_MEASUREMENTS*NUM_PAGES
 };
 
-declare_task(task_read_memory);
+//se la lettura automatica è disabilitata allora il task non viene istanziato
+# if AUTOMATIC_MEMORY_READ
+  declare_task(task_read_memory);
+#endif

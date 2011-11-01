@@ -3,8 +3,11 @@
 #define QUARZO (12 * 1000 * 1000)
 
 #define HZ 100
-#define NUM_MEASUREMENTS	16	//da 1 a 64 misurazioni salvabili in memoria alla volta
-#define NUM_PAGES		1	//numero di pagine da salvare in eprom prima di leggere i dati ed inviarli alla usart
+#define AUTOMATIC_MEMORY_READ	1	//0: la lettura automatica della memoria è disabilitata. La memoria verrà letta solo attraverso l'apposito pulsante; 1: la lettura automatica è abilitata e può essere regolata con i due parametri successivi
+#define NUM_MEASUREMENTS	10	//da 1 a 64 misurazioni salvabili in memoria alla volta
+#define NUM_PAGES		2	//numero di pagine da salvare in eprom prima di leggere i dati ed inviarli alla usart
+
+#define DEBUG	0	//per attivare i messaggi di stampa di debug cambiare il valore da 0 a 1
 
 extern volatile unsigned long jiffies;
 

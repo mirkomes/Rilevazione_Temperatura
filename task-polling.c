@@ -84,13 +84,8 @@ void polling_buttons(void)
 	     //lo scaricamento inizia a partire dall'indirizzo contenuto nella posizione di memoria
 	     //0x7fe0-0x7fe1 fino all'indirizzo contenuto in 0x7fe2-0x7fe3.
 	     //questi valori vengono reimpostati a zero solamente dopo un reset del sistema
-#if 0
-	     //nella nuova versione tutte le volte che si preme BUT1 vengono scaricati tutti i dati di temperatura
-	     uint16_t address_start = read_16bit_data(0x7fe0);
-#endif
-#if 1
+
 	     uint16_t address_start = 0x0;
-#endif
 	     uint16_t address_end = read_16bit_data(0x7fe2);
 	     
 	     //inizio ciclo di lettura
@@ -222,10 +217,6 @@ void polling_buttons(void)
 		    
 		    i2c_send_stop();
 	     }
-#if 0
-	     //nella nuova versione tutte le volte che si preme BUT1 vengono scaricati tutti i dati di temperatura
-	     write_16bit_data(address_end, 0x7fe0);
-#endif
         }
 }
 

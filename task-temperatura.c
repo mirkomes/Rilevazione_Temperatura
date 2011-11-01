@@ -64,9 +64,10 @@ void task_temperatura(void)
        //salvataggio della temperatura nel buffer circolare in memoria
        struct temp *buf = __temp_start[0];
        buf->write(&temp);
-       
+#if 0
        printhex(temp);
        putc('\n');
+#endif
 }
 
 struct task task_temp = {

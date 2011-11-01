@@ -4,34 +4,40 @@
 //funzione di scrittura di N misurazioni effettuate in memoria eprom
 void task_pw(void)
 {
+  
         //buffer circolare in memoria
         struct temp *buf = __temp_start[0];
         
         //prelevo l'indirizzo di scrittura in memoria
         //verifico che non sia arrivato al limite della memoria
         uint16_t addrs = (buf->last_address[0] < 0x7fbf) ? buf->last_address[0] : 0x0;
+	volatile int w;
         if (!addrs)
         {
 	      write_16bit_data(0x0, 0x7fe2);
-	      volatile int j;
-	      for (j = 0; j < 1000; j++)
+	      for (w = 0; w < 10000; w++)
 	      {
 		    //pausa per evitare sovraccarichi alla eprom
 	      }
         }
-        
+
+#if 0
         puts("Indirizzo memoria: ");
         printhex(addrs);
         putc('\n');
-        
+#endif
+
+	for (w = 0; w < 10000; w++)
+	{
+	  //pausa per evitare sovraccarichi alla memoria eprom
+	}
         //indirizzamento della memoria in scrittura
         i2c_address_slave_start(MEMORY_WRITE);
-        
-        puts("Inizio scrittura memoria\n");
+
         //mando l'indirizzo di inizio scrittura (prima MSB e poi LSB)
         *I2DAT = ((addrs & 0xff00) >> 8);
         *I2C0CONCLR = 0x08;
-        
+
         while (*I2STAT != 0x28)
         {
 	      //aspetto l'ack del MSB address
@@ -63,7 +69,6 @@ void task_pw(void)
         
         for (i = 0; i<NUM_MEASUREMENTS; i++)
         {
-	      printhex((cbuf[i] & 0xff00) >> 8);
 	      *I2DAT = ((cbuf[i] & 0xff00) >> 8); //MSB della misurazione
 	      *I2C0CONCLR = 0x08;
 	      
@@ -78,7 +83,6 @@ void task_pw(void)
 		    }
 	      }
 	      
-	      printhex(cbuf[i] & 0x00ff);
 	      *I2DAT = (cbuf[i] & 0x00ff); //LSB della misurazione
 	      *I2C0CONCLR = 0x08;
 	      
@@ -93,8 +97,10 @@ void task_pw(void)
 		    }
 	      }
 	      
+#if 0
 	      printhex(cbuf[i]);
 	      putc('\n');
+#endif
         }
         
         //fine della comunicazione
@@ -104,16 +110,13 @@ void task_pw(void)
         //se ci sono errori sul bus l'aggiornamento non viene fatto e al prossimo ciclo vengono sovrascritti
         //i dati dell'ultima pagina salvata non completamente
         buf->last_address[0] = addrs + NUM_MEASUREMENTS*2;
-        
-        volatile int j;
-        for (j = 0; j < 10000; j++)
+	
+        for (w = 0; w < 10000; w++)
         {
 	      //pausa per evitare sovraccarichi alla eprom
         }
         
         write_16bit_data(buf->last_address[0], 0x7fe2);
-        
-        puts("Fine scrittura memoria\n");
 }
 
 

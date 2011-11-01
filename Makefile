@@ -26,10 +26,10 @@ mainram.bin: mainram
 checksum:
 	$(MAKE) -C checksum
 
-mainrom: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o task-read_memory.o task-polling.o
+mainrom: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o task-read_memory.o task-polling.o task-led.o
 	$(LD) $(LDFLAGS) linker.lds $^ -o $@
 
-mainram: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o task-read_memory.o task-polling.o
+mainram: main.o boot.o vectors.o io.o i2c.o gpio.o timer.o task-temperatura.o task-page_write.o task-read_memory.o task-polling.o task-led.o
 	$(LD) $(LDFLAGS) ram.lds $^ -o $@
 
 

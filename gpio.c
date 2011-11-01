@@ -18,6 +18,10 @@ void gpio_setup(void)
         
         //pin out per i2c
         *GPIO0DIR |= 0x30;
+	
+	//Configurazione per i led
+        *GPIO3DIR = 0x0f;
+        *GPIO2DIR = 0x0f0;
         
         //accensione delle porte GPIO (devo impostare il bit 6 di AHBCLKCTRL)
         *AHBCLKCTRL |= 0x40;

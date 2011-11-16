@@ -77,7 +77,7 @@ struct task task_temp = {
         .next_run = 0,
 };
 
-static uint16_t c_buffer[16];
+static uint16_t c_buffer[NUM_MEASUREMENTS];
 static short b_index[1];
 static uint16_t l_addrs[1];
 
@@ -86,7 +86,7 @@ void write_buffer(void *arg)
         //scrittura dei valori nel buffer
         uint16_t *p = (uint16_t *) arg;
         c_buffer[b_index[0]++] = p[0]; //valore di temperatura da scrivere
-        b_index[0] = (b_index[0] > 0xf) ? 0x0 : b_index[0];
+        b_index[0] = (b_index[0] > NUM_MEASUREMENTS - 1) ? 0x0 : b_index[0];
 }
 
 void *read_buffer(void)
